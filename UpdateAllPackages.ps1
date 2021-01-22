@@ -1,5 +1,5 @@
 param(
-    $packageNamePattern,
+    $packageNamePattern = ".*",
     $version,
     $framework,
     $source
