@@ -2,12 +2,15 @@ param(
     $packageNamePattern = ".*",
     $version,
     $framework,
-    $source
+    $source,
+    [switch]$prerelease
 )
 
 if ($version) { $versionParam = "-v $version" }
 if ($framework) { $frameworkParam = "-f $framework" }
 if ($source) { $sourceParam = "-s $source" }
+if ($prerelease) { $prereleaseParam = "--prerelease" }
+
 Function UpdatePackages {
     param (
         $fileName
@@ -21,7 +24,7 @@ Function UpdatePackages {
     | % { $_.Groups[1].Value } `
     | % { 
         Invoke-Expression `
-            "dotnet.exe add package $_ $versionParam $frameworkParam $sourceParam" }
+            "dotnet.exe add package $_ $versionParam $frameworkParam $sourceParam $prereleaseParam" }
     Pop-Location
 }
 
