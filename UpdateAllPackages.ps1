@@ -1,11 +1,16 @@
 param(
-    $packageNamePattern = ".*",
+    $packageNamePattern = "*",
     $version,
     $framework,
     $source,
+    [switch]$match,
     [switch]$prerelease
 )
 
+if (!$match) {
+    $packageNamePattern = $packageNamePattern.Replace(".", "`\.").Replace("*", ".*")
+    "Package name pattern: '$packageNamePattern'"
+}
 if ($version) { $versionParam = "-v $version" }
 if ($framework) { $frameworkParam = "-f $framework" }
 if ($source) { $sourceParam = "-s $source" }
@@ -22,9 +27,7 @@ Function UpdatePackages {
         -Pattern "<PackageReference Include=\`"($packageNamePattern)\`" Version" `
     | % { $_.Matches } `
     | % { $_.Groups[1].Value } `
-    | % { 
-        Invoke-Expression `
-            "dotnet.exe add package $_ $versionParam $frameworkParam $sourceParam $prereleaseParam" }
+    | % { . dotnet.exe add package $_ $versionParam $frameworkParam $sourceParam $prereleaseParam }
     Pop-Location
 }
 
