@@ -11,9 +11,9 @@ if (!$match) {
     $packageNamePattern = $packageNamePattern.Replace(".", "`\.").Replace("*", ".*")
     "Package name pattern: '$packageNamePattern'"
 }
-if ($version) { $versionParam = "-v $version" }
-if ($framework) { $frameworkParam = "-f $framework" }
-if ($source) { $sourceParam = "-s $source" }
+if ($version) { $versionParam = "-v:$version" }
+if ($framework) { $frameworkParam = "-f:$framework" }
+if ($source) { $sourceParam = "-s:$source" }
 if ($prerelease) { $prereleaseParam = "--prerelease" }
 
 Function UpdatePackages {
