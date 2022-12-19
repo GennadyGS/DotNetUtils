@@ -1,2 +1,2 @@
-dotnet restore --source $env:user\.nuget\packages\
+dotnet restore --source $env:UserProfile\.nuget\packages\
 dotnet build --no-restore $args
