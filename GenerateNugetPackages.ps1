@@ -6,10 +6,14 @@ param (
 )
 
 Function IncrementVersion {
-    param ($version)
-    $typedVersion = [version]$version
-    return "{0}.{1}.{2}.{3}" `
-        -f $typedVersion.Major, $typedVersion.Minor, $typedVersion.Build, ($typedVersion.Revision + 1)
+    param ($versionString)
+    try {
+        $version = [version]$versionString
+    }
+    catch {
+        throw $_
+    }
+    return "$($version.Major).$($version.Minor).$($version.Build).$($version.Revision + 1)"
 }
 
 Function GetAndIncrementVersion {
