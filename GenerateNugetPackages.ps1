@@ -6,16 +6,20 @@ param (
 )
 
 Function IncrementVersion {
-    param ($version)
-    $typedVersion = [version]$version
-    return "{0}.{1}.{2}.{3}" `
-        -f $typedVersion.Major, $typedVersion.Minor, $typedVersion.Build, ($typedVersion.Revision + 1)
+    param ($versionString)
+    try {
+        $version = [version]$versionString
+    }
+    catch {
+        throw $_
+    }
+    return "$($version.Major).$($version.Minor).$($version.Build).$($version.Revision + 1)"
 }
 
 Function GetAndIncrementVersion {
     param ($versions, $key)
     $storedVersion = $versions.$key
-    $currentVersion = if ($storedVersion) { $storedVersion } else { "0.0.0.1" }
+    $currentVersion = $storedVersion ?? "0.0.0.1"
     $versions.$key = IncrementVersion $currentVersion
     return $currentVersion
 }
@@ -23,21 +27,13 @@ Function GetAndIncrementVersion {
 Function GetAndIncrementVersionFromFile {
     param ($fileName)
 
-    if (Test-Path $fileName -PathType Leaf) {
-        $versionsObject = Get-Content $fileName | ConvertFrom-Json
-        $versions = @{}
-        $versionsObject.psobject.properties | ForEach-Object { $versions[$_.Name] = $_.Value }
-    }
-    else {
-        $versions = @{}
-    }
+    $versions = (Test-Path $fileName -PathType Leaf) `
+        ? (Get-Content $fileName | ConvertFrom-Json -AsHashtable) `
+        : @{}
 
-    if ($project) {
-        $projectOrPath = [IO.Path]::GetFullPath($project).TrimEnd("/\")
-    }
-    else {
-        $projectOrPath = (Get-Location).Path
-    }
+    $projectOrPath = $project `
+        ? [IO.Path]::GetFullPath($project).TrimEnd("/\") `
+        : (Get-Location).Path
 
     $result = GetAndIncrementVersion $versions $projectOrPath
     $versions | ConvertTo-Json | Out-File $fileName
@@ -46,12 +42,7 @@ Function GetAndIncrementVersionFromFile {
 
 $version = GetAndIncrementVersionFromFile "$PSScriptRoot/versions.json"
 
-If ([System.Convert]::ToBoolean($prerelease)) {
-    $versionWithSuffix = $version + "-alpha"
-}
-else {
-    $versionWithSuffix = $version
-}
+$versionWithSuffix = ([System.Convert]::ToBoolean($prerelease)) ? $version + "-alpha" : $version
 
 . dotnet pack $project `
     --configuration $configuration `
