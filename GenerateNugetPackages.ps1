@@ -1,5 +1,5 @@
 param (
-    $project,
+    $projectOrPath,
     $outputPath = ".",
     $configuration = "Debug",
     $prerelease = "true"
@@ -17,35 +17,38 @@ Function IncrementVersion {
 }
 
 Function GetAndIncrementVersion {
-    param ($versions, [string] $key)
-    $caseInsensitiveKey = $key.ToLower()
-    $storedVersion = $versions.$caseInsensitiveKey
+    param ($versions, $key)
+    $storedVersion = $versions.$key
     $currentVersion = $storedVersion ?? "0.0.0.1"
-    $versions.$caseInsensitiveKey = IncrementVersion $currentVersion
+    $versions.$key = IncrementVersion $currentVersion
     return $currentVersion
 }
 
 Function GetAndIncrementVersionFromFile {
-    param ($fileName)
+    param ($fileName, $key)
 
     $versions = (Test-Path $fileName -PathType Leaf) `
         ? (Get-Content $fileName | ConvertFrom-Json -AsHashtable) `
         : @{}
 
-    $projectOrPath = $project `
-        ? [IO.Path]::GetFullPath($project).TrimEnd("/\") `
-        : (Get-Location).Path
-
-    $result = GetAndIncrementVersion $versions $projectOrPath
+    $result = GetAndIncrementVersion $versions $key
     $versions | ConvertTo-Json | Out-File $fileName
     return $result
 }
 
-$version = GetAndIncrementVersionFromFile "$PSScriptRoot/versions.json"
+$establishedProjectOrPath = $projectOrPath `
+    ? [IO.Path]::GetFullPath($projectOrPath) `
+    : (Get-Location).Path
+$normalizedProjectOrPath = [RegEx]::Replace($establishedProjectOrPath, "`\+", "/").
+    Replace("\", "/").
+    TrimEnd("/").
+    ToLower()
+
+$version = GetAndIncrementVersionFromFile "$PSScriptRoot/versions.json" $normalizedProjectOrPath
 
 $versionWithSuffix = ([System.Convert]::ToBoolean($prerelease)) ? $version + "-alpha" : $version
 
-. dotnet pack $project `
+. dotnet pack $projectOrPath `
     --configuration $configuration `
     -o $outputPath `
     /p:PackageVersion=$versionWithSuffix
