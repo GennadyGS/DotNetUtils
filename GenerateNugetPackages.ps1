@@ -24,13 +24,18 @@ Function GetAndIncrementVersion {
     return $currentVersion
 }
 
+Function ConvertTo-HashTable{
+    param ([Parameter(Mandatory = $true, ValueFromPipeline = $true)] $object)
+    $result = @{}
+    $object.psobject.properties | ForEach-Object { $result[$_.Name] = $_.Value }
+    return $result
+}
+
 Function GetAndIncrementVersionFromFile {
     param ($fileName)
 
     if (Test-Path $fileName -PathType Leaf) {
-        $versionsObject = Get-Content $fileName | ConvertFrom-Json
-        $versions = @{}
-        $versionsObject.psobject.properties | ForEach-Object { $versions[$_.Name] = $_.Value }
+        $versions = Get-Content $fileName | ConvertFrom-Json | ConvertTo-HashTable
     }
     else {
         $versions = @{}
