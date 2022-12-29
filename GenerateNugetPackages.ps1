@@ -17,10 +17,11 @@ Function IncrementVersion {
 }
 
 Function GetAndIncrementVersion {
-    param ($versions, $key)
-    $storedVersion = $versions.$key
+    param ($versions, [string] $key)
+    $caseInsensitiveKey = $key.ToLower()
+    $storedVersion = $versions.$caseInsensitiveKey
     $currentVersion = $storedVersion ?? "0.0.0.1"
-    $versions.$key = IncrementVersion $currentVersion
+    $versions.$caseInsensitiveKey = IncrementVersion $currentVersion
     return $currentVersion
 }
 
