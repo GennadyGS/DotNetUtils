@@ -19,7 +19,7 @@ Function IncrementVersion {
 Function GetAndIncrementVersion {
     param ($versions, $key)
     $storedVersion = $versions.$key
-    $currentVersion = $storedVersion ?? "0.0.0.1"
+    $currentVersion = $storedVersion ?? "99.0.0.1"
     $versions.$key = IncrementVersion $currentVersion
     return $currentVersion
 }
