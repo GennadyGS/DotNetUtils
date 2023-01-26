@@ -1,9 +1,9 @@
 param (
-    $targetDirectoryPath
+    $targetDirectoryPath = "."
 )
 
 $sourcePath = "$PSScriptRoot/NuGet_Offline.Config"
-$targetPath = Join-Path ($targetDirectoryPath ?? ".") NuGet.Config
+$targetPath = Join-Path $targetDirectoryPath NuGet.Config
 if (!(Test-Path $targetPath)) {
     Copy-Item $sourcePath $targetPath
     Write-Output "File '$targetPath' is successfully added."

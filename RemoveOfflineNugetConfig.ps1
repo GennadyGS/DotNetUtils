@@ -1,8 +1,8 @@
 param (
-    $targetDirectoryPath
+    $targetDirectoryPath = "."
 )
 
-$targetPath = Join-Path ($targetDirectoryPath ?? ".") NuGet.Config
+$targetPath = Join-Path $targetDirectoryPath NuGet.Config
 if (Test-Path $targetPath) {
     Remove-Item $targetPath -Force
     Write-Output "File '$targetPath' is successfully removed."
