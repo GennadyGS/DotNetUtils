@@ -51,4 +51,5 @@ $versionWithSuffix = ([System.Convert]::ToBoolean($prerelease)) ? $version + "-a
 . dotnet pack $projectOrPath `
     --configuration $configuration `
     -o $outputPath `
-    /p:PackageVersion=$versionWithSuffix
+    /p:PackageVersion=$versionWithSuffix `
+    /p:GeneratePackageOnBuild=false
