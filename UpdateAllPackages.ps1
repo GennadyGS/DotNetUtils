@@ -24,7 +24,7 @@ Function UpdatePackages {
     $directoryPath = Split-Path -Path $fileName -Parent
     Push-Location $directoryPath
     Select-String -Path $fileName `
-        -Pattern "<PackageReference Include=\`"($packageNamePattern)\`" Version" `
+        -Pattern "<PackageReference Include=\`"($packageNamePattern)\`"" `
     | ForEach-Object { $_.Matches } `
     | ForEach-Object { $_.Groups[1].Value } `
     | ForEach-Object {
