@@ -25,13 +25,15 @@ Function UpdatePackages {
     Push-Location $directoryPath
     Select-String -Path $fileName `
         -Pattern "<PackageReference Include=\`"($packageNamePattern)\`" Version" `
-    | % { $_.Matches } `
-    | % { $_.Groups[1].Value } `
-    | % { . dotnet.exe add package $_ $versionParam $frameworkParam $sourceParam $prereleaseParam }
+    | ForEach-Object { $_.Matches } `
+    | ForEach-Object { $_.Groups[1].Value } `
+    | ForEach-Object {
+         . dotnet.exe add package $_ $versionParam $frameworkParam $sourceParam $prereleaseParam
+    }
     Pop-Location
 }
 
 dotnet nuget locals http-cache --clear
 Get-ChildItem -Include "*.csproj", "*.fsproj" -Recurse `
 | Select-String "<PackageReference Include=`"$packageNamePattern`"" -List `
-| % { UpdatePackages $_.Path }
+| ForEach-Object { UpdatePackages $_.Path }
