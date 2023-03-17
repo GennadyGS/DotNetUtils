@@ -8,7 +8,7 @@ param(
 )
 
 if (!$match) {
-    $packageNamePattern = $packageNamePattern.Replace(".", "`\.").Replace("*", ".*")
+    $packageNamePattern = $packageNamePattern.Replace(".", "`\.").Replace("*", "[\w\.]*")
     "Package name pattern: '$packageNamePattern'"
 }
 if ($version) { $versionParam = "-v:$version" }
