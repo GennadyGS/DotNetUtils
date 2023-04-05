@@ -3,7 +3,7 @@ param(
     $version,
     $framework,
     $source,
-    [switch]$prerelease
+    [switch][Alias("pre")]$prerelease
 )
 
 Function TryGetAssemblyName($projectRelativePath) {

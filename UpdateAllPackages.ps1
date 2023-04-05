@@ -4,7 +4,7 @@ param(
     $framework,
     $source,
     [switch]$match,
-    [switch]$prerelease
+    [switch][Alias("pre")]$prerelease
 )
 
 if (!$match) {
