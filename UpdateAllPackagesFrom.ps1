@@ -1,8 +1,9 @@
 param(
     $solutionOrDirectory,
     $version,
-    $framework,
+    $target = '.',
     $source,
+    $framework,
     [switch][Alias("pre")]$prerelease
 )
 
@@ -34,8 +35,9 @@ $packageNamePattern = ($packageNames | ForEach-Object { [Regex]::Escape($_) }) -
 
 . $PSScriptRoot/UpdateAllPackages.ps1 `
     $packageNamePattern `
-    -match `
-    -version=$version `
-    -framework=$framework `
-    -source=$source `
-    -prerelease:$prerelease
+    -version $version `
+    -target $target `
+    -source $source `
+    -framework $framework `
+    -prerelease:$prerelease `
+    -match

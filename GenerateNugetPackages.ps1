@@ -2,7 +2,7 @@ param (
     $projectOrPath,
     $outputPath = ".",
     $configuration = "Debug",
-    $prerelease = "true"
+    $prerelease = $true
 )
 
 Function IncrementVersion {
