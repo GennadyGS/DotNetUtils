@@ -30,8 +30,10 @@ foreach ($dependencyProject in $dependencyProjects) {
         -prerelease:$prerelease
 }
 
-& $PSScriptRoot/$generateNugetPackagesScriptName `
+if ($prerelease) {
+    & $PSScriptRoot/$generateNugetPackagesScriptName `
     $primaryProject `
     -outputPath $outputPath `
     -configuration $configuration `
     -prerelease $prerelease
+}
