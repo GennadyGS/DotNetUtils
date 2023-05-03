@@ -1,14 +1,14 @@
 param(
-    $solutionOrDirectory,
+    $sourcePath,
     $version,
-    $target = '.',
-    $source,
+    $targetPath = '.',
+    $packageSource,
     $framework,
     [switch][Alias("pre")]$prerelease
 )
 
 Function TryGetAssemblyName($projectRelativePath) {
-    $fullPath = Join-Path $solutionDirectory $projectRelativePath
+    $fullPath = Join-Path $sourceDirectoryPath $projectRelativePath
     if (!(Test-Path $fullPath -PathType Leaf)) {
         return $null
     }
@@ -22,11 +22,11 @@ Function TryGetAssemblyName($projectRelativePath) {
         : $baseProjectName
 }
 
-$solutionDirectory = (Test-Path $solutionOrDirectory -PathType Leaf) `
-    ? [IO.Path]::GetDirectoryName($solutionOrDirectory) `
-    : $solutionOrDirectory
+$sourceDirectoryPath = (Test-Path $sourcePath -PathType Leaf) `
+    ? [IO.Path]::GetDirectoryName($sourcePath) `
+    : $sourcePath
 
-$packageNames = . dotnet sln $solutionOrDirectory list `
+$packageNames = . dotnet sln $sourcePath list `
     | ForEach-Object { TryGetAssemblyName $_ }
     | Where-Object { $_ }
     | Sort-Object
@@ -36,8 +36,8 @@ $packageNamePattern = ($packageNames | ForEach-Object { [Regex]::Escape($_) }) -
 . $PSScriptRoot/UpdatePackages.ps1 `
     $packageNamePattern `
     -version $version `
-    -target $target `
-    -source $source `
+    -targetPath $targetPath `
+    -packageSource $packageSource `
     -framework $framework `
     -prerelease:$prerelease `
     -match

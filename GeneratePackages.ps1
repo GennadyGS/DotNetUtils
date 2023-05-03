@@ -1,8 +1,9 @@
 param (
-    $projectOrPath,
+    $sourcePath,
     $outputPath = ".",
     $configuration = "Debug",
-    $prerelease = $true
+    $prerelease = $true,
+    $versionsFile
 )
 
 Function IncrementVersion {
@@ -36,19 +37,21 @@ Function GetAndIncrementVersionFromFile {
     return $result
 }
 
-$establishedProjectOrPath = $projectOrPath `
-    ? [IO.Path]::GetFullPath($projectOrPath) `
+$establishedSourcePath = $sourcePath `
+    ? [IO.Path]::GetFullPath($sourcePath) `
     : (Get-Location).Path
-$normalizedProjectOrPath = [RegEx]::Replace($establishedProjectOrPath, "`\+", "/").
+$normalizedSourcePath = [RegEx]::Replace($establishedSourcePath, "`\+", "/").
     Replace("\", "/").
     TrimEnd("/").
     ToLower()
 
-$version = GetAndIncrementVersionFromFile "$PSScriptRoot/versions.json" $normalizedProjectOrPath
+$versionsFile ??= "$PSScriptRoot/versions.json"
+
+$version = GetAndIncrementVersionFromFile $versionsFile $normalizedSourcePath
 
 $versionWithSuffix = ([System.Convert]::ToBoolean($prerelease)) ? $version + "-alpha" : $version
 
-. dotnet pack $projectOrPath `
+. dotnet pack $sourcePath `
     --configuration $configuration `
     -o $outputPath `
     /p:PackageVersion=$versionWithSuffix `

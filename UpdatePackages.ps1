@@ -1,8 +1,8 @@
 param(
     $packageNamePattern = "*",
     $version,
-    $target = ".",
-    $source,
+    $targetPath = ".",
+    $packageSource,
     $framework,
     [switch][Alias("pre")]$prerelease,
     [switch]$match
@@ -14,7 +14,7 @@ if (!$match) {
 }
 
 if ($version) { $versionParam = "-v:$version" }
-if ($source) { $sourceParam = "-s:$source" }
+if ($packageSource) { $sourceParam = "-s:$packageSource" }
 if ($framework) { $frameworkParam = "-f:$framework" }
 if ($prerelease) { $prereleaseParam = "--prerelease" }
 
@@ -22,6 +22,7 @@ Function UpdatePackages {
     param (
         $fileName
     )
+
     "Update packages by pattern '$packageNamePattern' in file '$fileName'"
     Select-String -Path $fileName `
         -Pattern "<PackageReference Include=\`"($packageNamePattern)\`"" `
@@ -34,6 +35,6 @@ Function UpdatePackages {
 }
 
 dotnet nuget locals http-cache --clear
-Get-ChildItem -Path $target -Include "*.csproj", "*.fsproj" -Recurse `
+Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 | Select-String "<PackageReference Include=`"$packageNamePattern`"" -List `
 | ForEach-Object { UpdatePackages $_.Path }
