@@ -33,7 +33,7 @@ $packageNames = . dotnet sln $solutionOrDirectory list `
 
 $packageNamePattern = ($packageNames | ForEach-Object { [Regex]::Escape($_) }) -join "|"
 
-. $PSScriptRoot/UpdateAllPackages.ps1 `
+. $PSScriptRoot/UpdatePackages.ps1 `
     $packageNamePattern `
     -version $version `
     -target $target `

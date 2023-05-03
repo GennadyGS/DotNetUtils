@@ -4,7 +4,7 @@ param (
     $configuration = "Debug",
     $framework,
     $prerelease = $true,
-    $generateNugetPackagesScriptName = "GenerateNugetPackages.ps1"
+    $generatePackagesScriptName = "GeneratePackages.ps1"
 )
 
 if (!($projects)) {
@@ -20,10 +20,10 @@ $dependencyProjects = $projects | Select-Object -Skip 1
     -configuration $configuration `
     -framework $framework `
     -prerelease $prerelease `
-    -generateNugetPackagesScriptName $generateNugetPackagesScriptName
+    -generatePackagesScriptName $generatePackagesScriptName
 
 foreach ($dependencyProject in $dependencyProjects) {
-    & $PSScriptRoot/UpdateAllPackagesFrom.ps1 `
+    & $PSScriptRoot/UpdatePackagesFrom.ps1 `
         $dependencyProject `
         -target $primaryProject `
         -framework $framework `
@@ -31,7 +31,7 @@ foreach ($dependencyProject in $dependencyProjects) {
 }
 
 if ($prerelease) {
-    & $PSScriptRoot/$generateNugetPackagesScriptName `
+    & $PSScriptRoot/$generatePackagesScriptName `
     $primaryProject `
     -outputPath $outputPath `
     -configuration $configuration `
