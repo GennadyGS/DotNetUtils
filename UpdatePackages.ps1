@@ -36,5 +36,6 @@ Function UpdatePackages {
 
 dotnet nuget locals http-cache --clear
 Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
+| Where-Object { (Get-Content $_) -match "Sdk=""Microsoft.NET.Sdk" }
 | Select-String "<PackageReference Include=`"$packageNamePattern`"" -List `
 | ForEach-Object { UpdatePackages $_.Path }
