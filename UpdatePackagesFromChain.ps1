@@ -5,7 +5,9 @@ param (
     $packagesOutputPath = ".",
     $configuration = "Debug",
     $framework,
-    $generatePackagesScriptName
+    $generatePackagesScriptName,
+    [switch] $build,
+    [switch] $test
 )
 
 $generatePackagesScriptName ??= "$PSScriptRoot\GeneratePackages.ps1"
@@ -21,7 +23,9 @@ if ($prereleaseSourcePaths) {
         -packagesOutputPath $packagesOutputPath `
         -configuration $configuration `
         -framework $framework `
-        -generatePackagesScriptName $generatePackagesScriptName
+        -generatePackagesScriptName $generatePackagesScriptName `
+        -build:$build `
+        -test:$test
 
     & $generatePackagesScriptName `
         $firstPrereleaseSourcePath `
@@ -33,7 +37,9 @@ foreach ($sourcePath in $releaseSourcePaths) {
     & $PSScriptRoot/UpdatePackagesFrom.ps1 `
         $sourcePath `
         -targetPath $targetPath `
-        -framework $framework
+        -framework $framework `
+        -build:$build `
+        -test:$test
 }
 
 foreach ($sourcePath in $prereleaseSourcePaths) {
@@ -41,5 +47,7 @@ foreach ($sourcePath in $prereleaseSourcePaths) {
         $sourcePath `
         -targetPath $targetPath `
         -framework $framework `
-        -prerelease
+        -prerelease `
+        -build:$build `
+        -test:$test
 }

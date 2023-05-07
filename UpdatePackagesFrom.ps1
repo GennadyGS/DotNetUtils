@@ -4,8 +4,12 @@ param(
     $targetPath = '.',
     $packageSource,
     $framework,
-    [switch][Alias("pre")]$prerelease
+    [switch] $build,
+    [switch] $test,
+    [switch] [Alias("pre")] $prerelease
 )
+
+. $PSScriptRoot\Common.ps1
 
 Function TryGetAssemblyName($projectRelativePath) {
     $fullPath = Join-Path $sourceDirectoryPath $projectRelativePath
@@ -26,18 +30,21 @@ $sourceDirectoryPath = (Test-Path $sourcePath -PathType Leaf) `
     ? [IO.Path]::GetDirectoryName($sourcePath) `
     : $sourcePath
 
-$packageNames = . dotnet sln $sourcePath list `
+$packageNames = & dotnet sln $sourcePath list `
     | ForEach-Object { TryGetAssemblyName $_ }
     | Where-Object { $_ }
     | Sort-Object
 
 $packageNamePattern = ($packageNames | ForEach-Object { [Regex]::Escape($_) }) -join "|"
 
+Write-Host "Updating packages in $targetPath from $sourcePath ..." -ForegroundColor $commandColor
 . $PSScriptRoot/UpdatePackages.ps1 `
     $packageNamePattern `
     -version $version `
     -targetPath $targetPath `
     -packageSource $packageSource `
     -framework $framework `
+    -build:$build `
+    -test:$test `
     -prerelease:$prerelease `
     -match

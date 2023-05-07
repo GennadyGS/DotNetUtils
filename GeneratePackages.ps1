@@ -51,7 +51,8 @@ $version = GetAndIncrementVersionFromFile $versionsFile $normalizedSourcePath
 
 $versionWithSuffix = ([System.Convert]::ToBoolean($prerelease)) ? $version + "-alpha" : $version
 
-. dotnet pack $sourcePath `
+Write-Host "Generating packages from $sourcePath ..." -ForegroundColor $commandColor
+RunAndLogCommand dotnet pack $sourcePath `
     --configuration $configuration `
     -o $outputPath `
     /p:PackageVersion=$versionWithSuffix `
