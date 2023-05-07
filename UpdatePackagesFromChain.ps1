@@ -33,13 +33,13 @@ if ($prereleaseSourcePaths) {
         -configuration $configuration
 }
 
+if (!$releaseSourcePaths -and !$prereleaseSourcePaths) { return }
+
 foreach ($sourcePath in $releaseSourcePaths) {
     & $PSScriptRoot/UpdatePackagesFrom.ps1 `
         $sourcePath `
         -targetPath $targetPath `
-        -framework $framework `
-        -build:$build `
-        -test:$test
+        -framework $framework
 }
 
 foreach ($sourcePath in $prereleaseSourcePaths) {
@@ -47,7 +47,8 @@ foreach ($sourcePath in $prereleaseSourcePaths) {
         $sourcePath `
         -targetPath $targetPath `
         -framework $framework `
-        -prerelease `
-        -build:$build `
-        -test:$test
+        -prerelease
 }
+
+if ($test) { RunAndLogCommand dotnet test $targetPath }
+elseif ($build) { RunAndLogCommand dotnet build $targetPath }
