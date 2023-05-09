@@ -35,14 +35,14 @@ if ($prereleaseSourcePaths) {
 
 if (!$releaseSourcePaths -and !$prereleaseSourcePaths) { return }
 
-foreach ($sourcePath in $releaseSourcePaths) {
+foreach ($sourcePath in [Linq.Enumerable]::Reverse([string[]]$releaseSourcePaths ?? @())) {
     & $PSScriptRoot/UpdatePackagesFrom.ps1 `
         $sourcePath `
         -targetPath $targetPath `
         -framework $framework
 }
 
-foreach ($sourcePath in $prereleaseSourcePaths) {
+foreach ($sourcePath in [Linq.Enumerable]::Reverse([string[]]$prereleaseSourcePaths ?? @())) {
     & $PSScriptRoot/UpdatePackagesFrom.ps1 `
         $sourcePath `
         -targetPath $targetPath `
