@@ -55,5 +55,6 @@ Write-Host "Generating packages from $sourcePath ..." -ForegroundColor $commandC
 RunAndLogCommand dotnet pack $sourcePath `
     --configuration $configuration `
     -o $outputPath `
+    /p:Version=$versionWithSuffix `
     /p:PackageVersion=$versionWithSuffix `
     /p:GeneratePackageOnBuild=false
