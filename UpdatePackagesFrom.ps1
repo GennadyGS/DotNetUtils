@@ -30,6 +30,10 @@ $sourceDirectoryPath = (Test-Path $sourcePath -PathType Leaf) `
     ? [IO.Path]::GetDirectoryName($sourcePath) `
     : $sourcePath
 
+if (!(Test-Path $sourceDirectoryPath -PathType Container)) {
+    throw "Source directory '$sourceDirectoryPath' does not exist."
+}
+
 $packageNames = & dotnet sln $sourcePath list `
     | ForEach-Object { TryGetAssemblyName $_ }
     | Where-Object { $_ }
