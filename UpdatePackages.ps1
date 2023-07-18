@@ -3,7 +3,7 @@ param(
     $version,
     $targetPath = ".",
     $packageSource,
-    $framework,
+    [Alias("f")] $framework,
     [switch] $build,
     [switch] $test,
     [switch] [Alias("pre")] $prerelease,
