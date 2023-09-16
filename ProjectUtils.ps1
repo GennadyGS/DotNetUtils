@@ -33,7 +33,7 @@ Function GetProjectCompositeContent($projectFilePath) {
         }
         $path = Split-Path $path -Parent
     }
-    (GetPredefinedProjectContent $projectFilePath) + $result
+    @(GetPredefinedProjectContent $projectFilePath) + $result
 }
 
 Function GetPredefinedProjectContent($projectFilePath) {
