@@ -1,3 +1,5 @@
+. $PsScriptRoot\ProjectUtils.ps1
+
 $commandColor = "white"
 
 Function RunAndLogCommand {

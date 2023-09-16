@@ -1,9 +1,9 @@
 param(
     $sourcePath,
-    $version,
     $targetPath = '.',
+    $version,
     $packageSource,
-    [Alias("f")] $framework,
+    $framework,
     [switch] $build,
     [switch] $test,
     [switch] [Alias("pre")] $prerelease
@@ -11,19 +11,10 @@ param(
 
 . $PSScriptRoot\Common.ps1
 
-Function TryGetAssemblyName($projectRelativePath) {
-    $fullPath = Join-Path $sourceDirectoryPath $projectRelativePath
-    if (!(Test-Path $fullPath -PathType Leaf)) {
-        return $null
-    }
-    $content = [string](Get-Content $fullPath)
-    if ($content -match "<IsPackable>false</IsPackable>") {
-        return $null
-    }
-    $baseProjectName = [IO.Path]::GetFileNameWithoutExtension($projectRelativePath)
-    $content -match "<AssemblyName>(?<assemblyName>.*)</AssemblyName>" `
-        ? $Matches["assemblyName"].Replace("`$(MSBuildProjectName)", $baseProjectName) `
-        : $baseProjectName
+Function TryGetPackageAssemblyName($projectFilePath) {
+    $assemblyName = ResolveProjectProperty $projectFilePath "AssemblyName"
+    if (!$assemblyName) { return $null }
+    [IO.Path]::GetFileNameWithoutExtension($assemblyName)
 }
 
 $sourceDirectoryPath = (Test-Path $sourcePath -PathType Leaf) `
@@ -35,13 +26,15 @@ if (!(Test-Path $sourceDirectoryPath -PathType Container)) {
 }
 
 $packageNames = & dotnet sln $sourcePath list `
-    | ForEach-Object { TryGetAssemblyName $_ }
+    | Select-Object -Skip 2
+    | ForEach-Object { TryGetPackageAssemblyName (Join-Path $sourcePath $_) }
     | Where-Object { $_ }
     | Sort-Object
 
 $packageNamePattern = ($packageNames | ForEach-Object { [Regex]::Escape($_) }) -join "|"
 
-Write-Host "Updating packages in $targetPath from $sourcePath ..." -ForegroundColor $commandColor
+Write-Host "Updating packages in $targetPath from $sourcePath by pattern $packageNamePattern ..." `
+    -ForegroundColor $commandColor
 . $PSScriptRoot/UpdatePackages.ps1 `
     $packageNamePattern `
     -version $version `
