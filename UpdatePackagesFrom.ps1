@@ -12,9 +12,8 @@ param(
 . $PSScriptRoot\Common.ps1
 
 Function TryGetPackageAssemblyName($projectFilePath) {
-    $assemblyName = ResolveProjectProperty $projectFilePath "AssemblyName"
-    if (!$assemblyName) { return $null }
-    [IO.Path]::GetFileNameWithoutExtension($assemblyName)
+    if ((ResolveProjectProperty $projectFilePath "IsPackable") -eq "false") { return $null }
+    ResolveProjectProperty $projectFilePath "AssemblyName"
 }
 
 $sourceDirectoryPath = (Test-Path $sourcePath -PathType Leaf) `

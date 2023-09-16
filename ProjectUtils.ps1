@@ -3,8 +3,9 @@ Function ResolveProjectProperty($projectFilePath, $propertyName) {
         throw "File $projectFilePath does not exist"
     }
 
+    $projectFileName = Split-Path $projectFilePath -Leaf
     $predefinedProperties = @{
-        MSBuildProjectName = Split-Path $projectFilePath -Leaf
+        MSBuildProjectName = [IO.Path]::GetFileNameWithoutExtension($projectFileName)
     }
 
     $compositeContent = GetProjectCompositeContent $projectFilePath
