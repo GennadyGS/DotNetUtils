@@ -3,20 +3,11 @@ Function ResolveProjectProperty($projectFilePath, $propertyName) {
         throw "File $projectFilePath does not exist"
     }
 
-    $projectFileName = Split-Path $projectFilePath -Leaf
-    $predefinedProperties = @{
-        MSBuildProjectName = [IO.Path]::GetFileNameWithoutExtension($projectFileName)
-    }
-
     $compositeContent = GetProjectCompositeContent $projectFilePath
     [array]::Reverse($compositeContent)
 
     Function GetProperty($propertyName) {
-        if ($predefinedProperties.ContainsKey($propertyName)) {
-            return $predefinedProperties[$propertyName]
-        }
-
-        $propertyPattern = "<$propertyName>([^\[]+)</$propertyName>"
+        $propertyPattern = "<$propertyName>([^\<]+)</$propertyName>"
         $originalPropertyName = [regex]::match($compositeContent, $propertyPattern).Groups[1].Value
         [regex]::replace(
             $originalPropertyName,
@@ -42,5 +33,20 @@ Function GetProjectCompositeContent($projectFilePath) {
         }
         $path = Split-Path $path -Parent
     }
-    $result
+    (GetPredefinedProjectContent $projectFilePath) + $result
+}
+
+Function GetPredefinedProjectContent($projectFilePath) {
+    $projectFileName = Split-Path $projectFilePath -Leaf
+    $projectName = [IO.Path]::GetFileNameWithoutExtension($projectFileName)
+    $predefinedProperties = @{
+        MSBuildProjectName = $projectName
+        AssemblyName = $projectName
+    }
+    PropertiesToXml $predefinedProperties
+}
+
+Function PropertiesToXml($properties) {
+    $body = $properties.Keys | ForEach-Object { "<$_>$($properties[$_])</$_>" }
+    "<PropertyGroup>$body</PropertyGroup>"
 }
