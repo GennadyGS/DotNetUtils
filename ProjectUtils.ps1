@@ -24,7 +24,9 @@ Function ResolveProjectProperty($projectFilePath, $propertyName) {
             { param($match) GetProperty($match.Groups[1].Value) })
     }
 
-    GetProperty $propertyName
+    $result = GetProperty $propertyName
+    if (!$result) { return $null }
+    $result
 }
 
 Function GetProjectCompositeContent($projectFilePath) {
