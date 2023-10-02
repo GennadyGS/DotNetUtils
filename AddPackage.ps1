@@ -33,5 +33,7 @@ Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 | Where-Object { (Get-Content $_) -match "Sdk=""Microsoft.NET.Sdk" }
 | ForEach-Object { AddPackage $_ }
 
-if ($test) { RunAndLogCommand dotnet test $targetPath }
-elseif ($build) { RunAndLogCommand dotnet build $targetPath }
+Push-Location $targetPath
+if ($test) { RunAndLogCommand dotnet test }
+elseif ($build) { RunAndLogCommand dotnet build }
+Pop-Location

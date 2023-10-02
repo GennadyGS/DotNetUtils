@@ -50,5 +50,7 @@ foreach ($sourcePath in [Linq.Enumerable]::Reverse([string[]]$prereleaseSourcePa
         -prerelease
 }
 
-if ($test) { RunAndLogCommand dotnet test $targetPath }
-elseif ($build) { RunAndLogCommand dotnet build $targetPath }
+Push-Location $targetPath
+if ($test) { RunAndLogCommand dotnet test }
+elseif ($build) { RunAndLogCommand dotnet build }
+Pop-Location
