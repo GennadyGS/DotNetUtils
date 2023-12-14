@@ -4,6 +4,7 @@ param(
     $targetPath = ".",
     $packageSource,
     [Alias("f")] $framework,
+    [Alias("c")] $configuration = "Debug",
     [switch] $build,
     [switch] $test,
     [switch] [Alias("pre")] $prerelease,
@@ -34,7 +35,7 @@ Function UpdatePackages {
     | ForEach-Object { $_.Groups[1].Value } `
     | ForEach-Object {
         $script:updated = $true
-        RunAndLogCommand dotnet.exe add $fileName package $_ `
+        RunAndLogCommand dotnet add $fileName package $_ `
             $versionParam $frameworkParam $sourceParam $prereleaseParam
     }
 }
@@ -48,6 +49,6 @@ Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 if (!$updated) { return }
 
 Push-Location $targetPath
-if ($test) { RunAndLogCommand dotnet test }
-elseif ($build) { RunAndLogCommand dotnet build }
+if ($test) { RunAndLogCommand dotnet test -c $configuration }
+elseif ($build) { RunAndLogCommand dotnet build -c $configuration }
 Pop-Location

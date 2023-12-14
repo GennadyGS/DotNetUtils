@@ -3,7 +3,7 @@ param (
     [string[]] $prereleaseSourcePaths = @(),
     [string[]] $releaseSourcePaths = @(),
     $packagesOutputPath = ".",
-    $configuration = "Debug",
+    [Alias("c")] $configuration = "Debug",
     $framework,
     $generatePackagesScriptName,
     [switch] $build,
@@ -51,6 +51,6 @@ foreach ($sourcePath in [Linq.Enumerable]::Reverse([string[]]$prereleaseSourcePa
 }
 
 Push-Location $targetPath
-if ($test) { RunAndLogCommand dotnet test }
-elseif ($build) { RunAndLogCommand dotnet build }
+if ($test) { RunAndLogCommand dotnet test -c $configuration }
+elseif ($build) { RunAndLogCommand dotnet build -c $configuration }
 Pop-Location

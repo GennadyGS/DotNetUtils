@@ -1,7 +1,7 @@
 param (
     $sourcePath,
     $outputPath = ".",
-    $configuration = "Debug",
+    [Alias("c")] $configuration = "Debug",
     $prerelease = $true,
     $versionsFile
 )
