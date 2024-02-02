@@ -6,6 +6,8 @@ param (
     $versionsFile
 )
 
+. $PSScriptRoot\Common.ps1
+
 Function IncrementVersion {
     param ($versionString)
     try {
