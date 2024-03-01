@@ -4,7 +4,7 @@ param (
     [switch] $keepTempFile
 )
 
-$packageReferencesItemGroupRegex = "(?s)<ItemGroup>.*?<\/ItemGroup>"
+$packageReferencesItemGroupRegex = "(?s)<ItemGroup>\s*<PackageReference.*?<\/ItemGroup>"
 
 Function GetFileContent($filePath) {
     If (!(Test-Path $filePath -PathType Leaf)) { throw "File $filePath is not found." }
@@ -40,6 +40,7 @@ New-Item -Type Directory -Path $tempProjectDirectoryPath | Out-Null
 $tempProjectFilePath = Join-Path $tempProjectDirectoryPath "tempProject.csproj"
 $tempProjectFileContent | Out-File $tempProjectFilePath -NoNewline
 "Temp project file is created: $tempProjectFilePath"
+
 & $PsScriptRoot/UpdatePackages.ps1 -targetPath $tempProjectDirectoryPath -f $framework
 
 $updatedPackageReferencesContent = GetPackageReferencesContentFromFile $tempProjectFilePath
