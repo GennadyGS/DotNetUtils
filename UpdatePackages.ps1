@@ -1,5 +1,6 @@
 param(
-    $packageNamePattern = "*",
+    $packageNamePattern,
+    [Alias("e")] $excludedPackageNamePattern,
     $version,
     $targetPath = ".",
     $packageSource,
@@ -10,11 +11,31 @@ param(
     [switch] [Alias("pre")] $prerelease,
     [switch] $match
 )
+Function ConvertPatternToRegex($pattern) {
+    ($pattern ?? "").Replace(".", "`\.").Replace("*", "[\w\.]*")
+}
+
+Function UpdatePackages($fileName) {
+    $excludedPattern = "^$excludedPackageNamePattern$"
+    Write-Host "Updating packages by pattern '$packageNamePattern' in project '$fileName' ..." `
+        -ForegroundColor $commandColor
+    Select-String -Path $fileName -Pattern "<PackageReference Include=\`"($packageNamePattern)\`"" `
+    | ForEach-Object { $_.Matches } `
+    | ForEach-Object { $_.Groups[1].Value } `
+    | Where-Object { !($_ -match $excludedPattern) }
+    | ForEach-Object {
+        $script:updated = $true
+        RunAndLogCommand dotnet add $fileName package $_ `
+            $versionParam $frameworkParam $sourceParam $prereleaseParam
+    }
+}
 
 . $PSScriptRoot\Common.ps1
 
+$packageNamePattern = $packageNamePattern ?? ($match ? "[\w\.]*" : "*")
 if (!$match) {
-    $packageNamePattern = $packageNamePattern.Replace(".", "`\.").Replace("*", "[\w\.]*")
+    $packageNamePattern = ConvertPatternToRegex($packageNamePattern)
+    $excludedPackageNamePattern = ConvertPatternToRegex($excludedPackageNamePattern)
 }
 
 if ($version) { $versionParam = "-v:$version" }
@@ -22,23 +43,6 @@ if ($packageSource) { $sourceParam = "-s:$packageSource" }
 if ($framework) { $frameworkParam = "-f:$framework" }
 if ($prerelease) { $prereleaseParam = "--prerelease" }
 $updated = $false
-
-Function UpdatePackages {
-    param (
-        $fileName
-    )
-
-    Write-Host "Updating packages by pattern '$packageNamePattern' in project '$fileName' ..." `
-        -ForegroundColor $commandColor
-    Select-String -Path $fileName -Pattern "<PackageReference Include=\`"($packageNamePattern)\`"" `
-    | ForEach-Object { $_.Matches } `
-    | ForEach-Object { $_.Groups[1].Value } `
-    | ForEach-Object {
-        $script:updated = $true
-        RunAndLogCommand dotnet add $fileName package $_ `
-            $versionParam $frameworkParam $sourceParam $prereleaseParam
-    }
-}
 
 & dotnet nuget locals http-cache --clear
 Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
