@@ -1,5 +1,5 @@
 param (
-    [Parameter(Mandatory=$true)]$filePath,
+    [Parameter(Mandatory=$true)] $filePath,
     [Alias("f")] $framework="net6.0",
     [switch] $keepTempFile
 )

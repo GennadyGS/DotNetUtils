@@ -1,5 +1,5 @@
 param(
-    $sourcePath,
+    [Parameter(Mandatory=$true)] $sourcePath,
     $targetPath = '.',
     $version,
     $packageSource,

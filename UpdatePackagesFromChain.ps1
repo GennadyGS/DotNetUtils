@@ -2,7 +2,7 @@ param (
     $targetPath,
     [string[]] $prereleaseSourcePaths = @(),
     [string[]] $releaseSourcePaths = @(),
-    $packagesOutputPath = ".",
+    $packagesOutputPath,
     [Alias("c")] $configuration = "Debug",
     $framework,
     $generatePackagesScriptName,
@@ -10,6 +10,7 @@ param (
     [switch] $test
 )
 
+$packagesOutputPath ??= $Env:NugetPackagesOutputPath
 $generatePackagesScriptName ??= "$PSScriptRoot\GeneratePackages.ps1"
 
 if ($prereleaseSourcePaths) {
