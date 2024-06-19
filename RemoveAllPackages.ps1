@@ -1,5 +1,6 @@
 param(
-    $packageNamePattern = "*"
+    $packageNamePattern = "*",
+    [switch] $match
 )
 
 if (!$match) {
