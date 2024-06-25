@@ -1,5 +1,6 @@
 . $PsScriptRoot\ProjectUtils.ps1
 
+$localNugetSourcePath = $Env:NugetPackagesOutputPath
 $commandColor = "white"
 
 Function RunAndLogCommand {

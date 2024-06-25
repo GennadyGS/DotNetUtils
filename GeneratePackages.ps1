@@ -8,8 +8,6 @@ param (
 
 . $PSScriptRoot\Common.ps1
 
-$outputPath ??= $Env:NugetPackagesOutputPath
-
 Function IncrementVersion {
     param ($versionString)
     try {
@@ -59,7 +57,7 @@ Write-Host "Generating packages from $establishedSourcePath ..." -ForegroundColo
 Push-Location $establishedSourcePath
 RunAndLogCommand dotnet pack `
     --configuration $configuration `
-    -o $outputPath `
+    -o ($outputPath ?? $localNugetSourcePath) `
     /p:Version=$versionWithSuffix `
     /p:PackageVersion=$versionWithSuffix `
     /p:GeneratePackageOnBuild=false

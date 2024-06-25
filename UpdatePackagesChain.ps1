@@ -5,13 +5,11 @@ param (
     $packagesOutputPath,
     [Alias("c")] $configuration = "Debug",
     $framework,
-    $generatePackagesScriptName,
     [switch] $build,
     [switch] $test
 )
 
-$packagesOutputPath ??= $Env:NugetPackagesOutputPath
-$generatePackagesScriptName ??= "$PSScriptRoot\GeneratePackages.ps1"
+. $PSScriptRoot\Common.ps1
 
 if ($prereleaseSourcePaths) {
     $firstPrereleaseSourcePath = $prereleaseSourcePaths[0]
@@ -21,14 +19,13 @@ if ($prereleaseSourcePaths) {
         $firstPrereleaseSourcePath `
         $restPrereleaseSourcePath `
         $releaseSourcePaths `
-        -packagesOutputPath $packagesOutputPath `
+        -packagesOutputPath ($packagesOutputPath ?? $localNugetSourcePath) `
         -configuration $configuration `
         -framework $framework `
-        -generatePackagesScriptName $generatePackagesScriptName `
         -build:$build `
         -test:$test
 
-    & $generatePackagesScriptName `
+    & $PSScriptRoot\GeneratePackages.ps1 `
         $firstPrereleaseSourcePath `
         -outputPath $packagesOutputPath `
         -configuration $configuration
