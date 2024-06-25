@@ -1,12 +1,14 @@
 param (
     $sourcePath,
-    $outputPath = ".",
+    $outputPath,
     [Alias("c")] $configuration = "Debug",
     $prerelease = $true,
     $versionsFile
 )
 
 . $PSScriptRoot\Common.ps1
+
+$outputPath ??= $Env:NugetPackagesOutputPath
 
 Function IncrementVersion {
     param ($versionString)
