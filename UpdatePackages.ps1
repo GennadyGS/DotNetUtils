@@ -45,6 +45,9 @@ if ($prerelease) { $prereleaseParam = "--prerelease" }
 $updated = $false
 
 & dotnet nuget locals http-cache --clear
+if (!(Test-Path $targetPath -PathType Container)) {
+    throw "Target directory is not found by path $targetPath."
+}
 Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 | Where-Object { (Get-Content $_) -match "Sdk=""Microsoft.NET.Sdk" }
 | Select-String "<PackageReference Include=`"$packageNamePattern`"" -List `
