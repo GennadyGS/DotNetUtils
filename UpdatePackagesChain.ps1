@@ -49,6 +49,6 @@ foreach ($sourcePath in [Linq.Enumerable]::Reverse([string[]]$prereleaseSourcePa
 }
 
 Push-Location $targetPath
-if ($test) { RunAndLogCommand dotnet test -c $configuration }
+if ($test) { RunAndLogCommand dotnet test '-m:1' -c $configuration }
 elseif ($build) { RunAndLogCommand dotnet build -c $configuration }
 Pop-Location

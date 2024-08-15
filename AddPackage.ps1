@@ -34,6 +34,6 @@ Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 | ForEach-Object { AddPackage $_ }
 
 Push-Location $targetPath
-if ($test) { RunAndLogCommand dotnet test }
+if ($test) { RunAndLogCommand dotnet test '-m:1' }
 elseif ($build) { RunAndLogCommand dotnet build }
 Pop-Location

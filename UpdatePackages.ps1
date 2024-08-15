@@ -56,6 +56,6 @@ Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 if (!$updated) { return }
 
 Push-Location $targetPath
-if ($test) { RunAndLogCommand dotnet test -c $configuration }
+if ($test) { RunAndLogCommand dotnet test '-m:1' -c $configuration }
 elseif ($build) { RunAndLogCommand dotnet build -c $configuration }
 Pop-Location
