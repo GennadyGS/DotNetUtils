@@ -1,8 +1,8 @@
 param(
     [Parameter(Mandatory=$true)] $sourcePath,
     $targetPath = '.',
-    $version,
     $packageSource,
+    [Alias("v")] $version,
     $framework,
     [switch] $build,
     [switch] $test,
@@ -36,9 +36,9 @@ Write-Host "Updating packages in $targetPath from $sourcePath by pattern $packag
     -ForegroundColor $commandColor
 . $PSScriptRoot/UpdatePackages.ps1 `
     $packageNamePattern `
-    -version $version `
     -targetPath $targetPath `
     -packageSource $packageSource `
+    -version $version `
     -framework $framework `
     -build:$build `
     -test:$test `

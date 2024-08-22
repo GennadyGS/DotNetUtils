@@ -1,7 +1,7 @@
 param(
     $packageNamePattern,
     [Alias("e")] $excludedPackageNamePattern,
-    $version,
+    [Alias("v")] $version,
     $targetPath = ".",
     $packageSource,
     [Alias("f")] $framework,

@@ -1,5 +1,6 @@
 param (
     [Parameter(Mandatory=$true)] $filePath,
+    [Alias("v")] $version,
     [Alias("f")] $framework="net6.0",
     [switch] $keepTempFile
 )
@@ -41,7 +42,10 @@ $tempProjectFilePath = Join-Path $tempProjectDirectoryPath "tempProject.csproj"
 $tempProjectFileContent | Out-File $tempProjectFilePath -NoNewline
 "Temp project file is created: $tempProjectFilePath"
 
-& $PsScriptRoot/UpdatePackages.ps1 -targetPath $tempProjectDirectoryPath -f $framework
+& $PsScriptRoot/UpdatePackages.ps1 `
+  -targetPath $tempProjectDirectoryPath `
+  -v $version `
+  -f $framework
 
 $updatedPackageReferencesContent = GetPackageReferencesContentFromFile $tempProjectFilePath
 $updatedContent = $content -replace $packageReferencesItemGroupRegex, $updatedPackageReferencesContent

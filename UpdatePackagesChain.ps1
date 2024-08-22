@@ -4,6 +4,7 @@ param (
     [string[]] $releaseSourcePaths = @(),
     $packagesOutputPath,
     [Alias("c")] $configuration = "Debug",
+    [Alias("v")] $version,
     $framework,
     [switch] $build,
     [switch] $test
@@ -21,6 +22,7 @@ if ($prereleaseSourcePaths) {
         $releaseSourcePaths `
         -packagesOutputPath ($packagesOutputPath ?? $localNugetSourcePath) `
         -configuration $configuration `
+        -version $version `
         -framework $framework `
         -build:$build `
         -test:$test
@@ -37,6 +39,7 @@ foreach ($sourcePath in [Linq.Enumerable]::Reverse([string[]]$releaseSourcePaths
     & $PSScriptRoot/UpdatePackagesFrom.ps1 `
         $sourcePath `
         -targetPath $targetPath `
+        -version $version `
         -framework $framework
 }
 
@@ -44,6 +47,7 @@ foreach ($sourcePath in [Linq.Enumerable]::Reverse([string[]]$prereleaseSourcePa
     & $PSScriptRoot/UpdatePackagesFrom.ps1 `
         $sourcePath `
         -targetPath $targetPath `
+        -version $version `
         -framework $framework `
         -prerelease
 }
