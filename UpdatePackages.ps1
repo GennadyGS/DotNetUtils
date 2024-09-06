@@ -44,6 +44,8 @@ if ($framework) { $frameworkParam = "-f:$framework" }
 if ($prerelease) { $prereleaseParam = "--prerelease" }
 $updated = $false
 
+Push-Location $targetPath
+
 & dotnet nuget locals http-cache --clear
 if (!(Test-Path $targetPath -PathType Container)) {
     throw "Target directory is not found by path $targetPath."
@@ -55,7 +57,7 @@ Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 
 if (!$updated) { return }
 
-Push-Location $targetPath
 if ($test) { RunAndLogCommand dotnet test '-m:1' -c $configuration }
 elseif ($build) { RunAndLogCommand dotnet build -c $configuration }
+
 Pop-Location
