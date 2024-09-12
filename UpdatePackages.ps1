@@ -17,15 +17,14 @@ Function ConvertPatternToRegex($pattern) {
 
 Function UpdatePackages($fileName) {
     $excludedPattern = "^$excludedPackageNamePattern$"
-    Write-Host "Updating packages by pattern '$packageNamePattern' in project '$fileName' ..." `
-        -ForegroundColor $commandColor
+    WriteHighlighted "Updating packages by pattern '$packageNamePattern' in project '$fileName' ..."
     Select-String -Path $fileName -Pattern "<PackageReference Include=\`"($packageNamePattern)\`"" `
     | ForEach-Object { $_.Matches } `
     | ForEach-Object { $_.Groups[1].Value } `
     | Where-Object { !($_ -match $excludedPattern) }
     | ForEach-Object {
         $script:updated = $true
-        RunAndLogCommand dotnet add $fileName package $_ `
+        RunCommandWithLog dotnet add $fileName package $_ `
             $versionParam $frameworkParam $sourceParam $prereleaseParam
     }
 }
@@ -57,7 +56,7 @@ Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 
 if (!$updated) { return }
 
-if ($test) { RunAndLogCommand dotnet test '-m:1' -c $configuration }
-elseif ($build) { RunAndLogCommand dotnet build -c $configuration }
+if ($test) { RunCommandWithLog dotnet test '-m:1' -c $configuration }
+elseif ($build) { RunCommandWithLog dotnet build -c $configuration }
 
 Pop-Location

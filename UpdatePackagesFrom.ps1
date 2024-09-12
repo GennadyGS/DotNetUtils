@@ -32,8 +32,7 @@ $packageNames = & dotnet sln $sourcePath list `
 
 $packageNamePattern = ($packageNames | ForEach-Object { [Regex]::Escape($_) }) -join "|"
 
-Write-Host "Updating packages in $targetPath from $sourcePath by pattern $packageNamePattern ..." `
-    -ForegroundColor $commandColor
+WriteHighlighted "Updating packages in $targetPath from $sourcePath by pattern $packageNamePattern ..."
 . $PSScriptRoot/UpdatePackages.ps1 `
     $packageNamePattern `
     -targetPath $targetPath `

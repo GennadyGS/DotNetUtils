@@ -23,7 +23,7 @@ Function AddPackage {
 
     Write-Host "Adding package '$packageName' to project '$fileName' ..." `
         -ForegroundColor $commandColor
-    RunAndLogCommand `
+    RunCommandWithLog `
         dotnet.exe add $fileName package $packageName `
             $versionParam $frameworkParam $sourceParam $prereleaseParam
 }
@@ -34,6 +34,6 @@ Get-ChildItem -Path $targetPath -Include "*.csproj", "*.fsproj" -Recurse `
 | ForEach-Object { AddPackage $_ }
 
 Push-Location $targetPath
-if ($test) { RunAndLogCommand dotnet test '-m:1' }
-elseif ($build) { RunAndLogCommand dotnet build }
+if ($test) { RunCommandWithLog dotnet test '-m:1' }
+elseif ($build) { RunCommandWithLog dotnet build }
 Pop-Location

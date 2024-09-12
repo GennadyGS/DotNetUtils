@@ -1,24 +1,29 @@
 . $PsScriptRoot\ProjectUtils.ps1
 
 $localNugetSourcePath = $Env:NugetPackagesOutputPath
-$commandColor = "white"
+$highlightedColor = "white"
 
-Function RunAndLogCommand {
-    param (
-        [switch] $noLog,
-        [switch] $ignoreError
-    )
-
+Function RunCommandWithLog {
     if (!$args) {
-        Throw "Command is not specified for function Run"
+        throw "Command is not specified"
     }
 
     $commandText = [string]$args
-    if(!$noLog) {
-        Write-Host $commandText -ForegroundColor $commandColor
+    RunExpressionAndLog "'$commandText' in '$pwd'" { Invoke-Expression $commandText }
+}
+
+Function RunExpressionAndLog(
+    [Parameter(Mandatory=$true)] [string] $name,
+    [Parameter(Mandatory=$true)] [ScriptBlock] $expression)
+{
+    WriteHighlighted $name
+    $global:LastExitCode = 0
+    & $expression
+    if ($LastExitCode -ne 0) {
+        throw "'$name' failed with code $LastExitCode"
     }
-    Invoke-Expression $commandText
-    if (!$ignoreError -and $LastExitCode -ne 0) {
-        throw "Command '$commandText' has failed with code $LastExitCode."
-    }
+}
+
+Function WriteHighlighted($text) {
+    Write-Host $text -ForegroundColor $highlightedColor
 }
