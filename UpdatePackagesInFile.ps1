@@ -1,7 +1,7 @@
 param (
     [Parameter(Mandatory=$true)] $filePath,
     [Alias("v")] $version,
-    [Alias("f")] $framework="net6.0",
+    [Alias("f")] $framework="net8.0",
     [switch] $keepTempFile
 )
 
