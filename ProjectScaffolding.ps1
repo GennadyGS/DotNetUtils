@@ -16,13 +16,9 @@ $sample = Join-Path $root "samples\SampleApp"
 # Create directory structure
 New-Item -ItemType Directory -Force -Path $src, $test, $workflow, $sample | Out-Null
 
-# Create main project based on type
+# Create main project and set metadata
 if ($ProjectType -eq "library") {
     dotnet new classlib -n $ProjectName -o $src
-    # Modify .csproj with NuGet metadata
-    $csprojPath = Join-Path $src "$ProjectName.csproj"
-    [xml]$csproj = Get-Content $csprojPath
-    $propertyGroup = $csproj.Project.PropertyGroup
     $metadata = @{
         PackageId = $ProjectName
         Version = $Version
@@ -34,38 +30,7 @@ if ($ProjectType -eq "library") {
         PackageTags = "$ProjectName;dotnet;nuget"
         GeneratePackageOnBuild = "true"
     }
-    foreach ($key in $metadata.Keys) {
-        $elem = $csproj.CreateElement($key)
-        $elem.InnerText = $metadata[$key]
-        $propertyGroup.AppendChild($elem) | Out-Null
-    }
-    $csproj.Save($csprojPath)
-} elseif ($ProjectType -eq "cli") {
-    dotnet new console -n $ProjectName -o $src
-    # Add minimal metadata for CLI using AppendChild (same as library)
-    $csprojPath = Join-Path $src "$ProjectName.csproj"
-    [xml]$csproj = Get-Content $csprojPath
-    $propertyGroup = $csproj.Project.PropertyGroup
-    $metadata = @{
-        Version = $Version
-        Authors = $Author
-        Company = $Company
-    }
-    foreach ($key in $metadata.Keys) {
-        $elem = $csproj.CreateElement($key)
-        $elem.InnerText = $metadata[$key]
-        $propertyGroup.AppendChild($elem) | Out-Null
-    }
-    $csproj.Save($csprojPath)
-}
-
-# Create test project
-dotnet new xunit -n "$ProjectName.Tests" -o $test
-dotnet add "$test" reference "$src"
-
-# README
-if ($ProjectType -eq "library") {
-    @"
+    $readme = @"
 # $ProjectName
 
 NuGet package: [![NuGet](https://img.shields.io/nuget/v/$ProjectName.svg)](https://www.nuget.org/packages/$ProjectName)
@@ -82,49 +47,8 @@ dotnet add package $ProjectName
 dotnet build
 dotnet test
 ```
-"@ | Out-File -Encoding utf8 "$root\README.md"
-} elseif ($ProjectType -eq "cli") {
-    @"
-# $ProjectName
-
-Command-line tool built with .NET.
-
-## Usage
-
-```sh
-dotnet run --project src/$ProjectName -- [args]
-```
-
-## Build & Test
-
-```sh
-dotnet build
-dotnet test
-```
-"@ | Out-File -Encoding utf8 "$root\README.md"
-}
-
-# LICENSE
-@"
-MIT License
-
-Copyright (c) $(Get-Date -Format yyyy)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy...
-"@ | Out-File -Encoding utf8 "$root\LICENSE"
-
-# CHANGELOG
-@"
-# Changelog
-
-## [$Version] - $(Get-Date -Format yyyy-MM-dd)
-
-- Initial release
-"@ | Out-File -Encoding utf8 "$root\CHANGELOG.md"
-
-# GitHub Actions CI workflow
-if ($ProjectType -eq "library") {
-    @"
+"@
+    $ci = @"
 name: .NET CI
 
 on:
@@ -151,9 +75,34 @@ jobs:
         run: dotnet test --no-build --configuration Release
       - name: Pack
         run: dotnet pack src/$ProjectName --no-build --configuration Release --output nupkgs
-"@ | Out-File -Encoding utf8 "$workflow\ci.yml"
+"@
+    $finalMessage = "🎉 .NET library '$ProjectName' structure created, NuGet-ready, and Git tagged with version $Version"
 } elseif ($ProjectType -eq "cli") {
-    @"
+    dotnet new console -n $ProjectName -o $src
+    $metadata = @{
+        Version = $Version
+        Authors = $Author
+        Company = $Company
+    }
+    $readme = @"
+# $ProjectName
+
+Command-line tool built with .NET.
+
+## Usage
+
+```sh
+dotnet run --project src/$ProjectName -- [args]
+```
+
+## Build & Test
+
+```sh
+dotnet build
+dotnet test
+```
+"@
+    $ci = @"
 name: .NET CLI CI
 
 on:
@@ -180,8 +129,48 @@ jobs:
         run: dotnet test --no-build --configuration Release
       - name: Publish
         run: dotnet publish src/$ProjectName --no-build --configuration Release --output publish
-"@ | Out-File -Encoding utf8 "$workflow\ci.yml"
+"@
+    $finalMessage = "🚀 .NET CLI tool '$ProjectName' structure created and Git tagged with version $Version"
 }
+
+# Add metadata to .csproj
+$csprojPath = Join-Path $src "$ProjectName.csproj"
+[xml]$csproj = Get-Content $csprojPath
+$propertyGroup = $csproj.Project.PropertyGroup
+foreach ($key in $metadata.Keys) {
+    $elem = $csproj.CreateElement($key)
+    $elem.InnerText = $metadata[$key]
+    $propertyGroup.AppendChild($elem) | Out-Null
+}
+$csproj.Save($csprojPath)
+
+# Create test project
+dotnet new xunit -n "$ProjectName.Tests" -o $test
+dotnet add "$test" reference "$src"
+
+# README
+$readme | Out-File -Encoding utf8 "$root\README.md"
+
+# LICENSE
+@"
+MIT License
+
+Copyright (c) $(Get-Date -Format yyyy)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy...
+"@ | Out-File -Encoding utf8 "$root\LICENSE"
+
+# CHANGELOG
+@"
+# Changelog
+
+## [$Version] - $(Get-Date -Format yyyy-MM-dd)
+
+- Initial release
+"@ | Out-File -Encoding utf8 "$root\CHANGELOG.md"
+
+# GitHub Actions CI workflow
+$ci | Out-File -Encoding utf8 "$workflow\ci.yml"
 
 # Initialize Git and tag version
 Set-Location $root
@@ -191,8 +180,4 @@ git commit -m "Initial commit for $ProjectName v$Version"
 git tag "v$Version"
 Set-Location ..
 
-if ($ProjectType -eq "library") {
-    Write-Host "🎉 .NET library '$ProjectName' structure created, NuGet-ready, and Git tagged with version $Version"
-} elseif ($ProjectType -eq "cli") {
-    Write-Host "🚀 .NET CLI tool '$ProjectName' structure created and Git tagged with version $Version"
-}
+Write-Host $finalMessage
