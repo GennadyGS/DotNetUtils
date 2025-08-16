@@ -16,9 +16,7 @@ Function TryGetPackageAssemblyName($projectFilePath) {
     ResolveProjectProperty $projectFilePath "AssemblyName"
 }
 
-$sourceDirectoryPath = (Test-Path $sourcePath -PathType Leaf) `
-    ? [IO.Path]::GetDirectoryName($sourcePath) `
-    : $sourcePath
+$sourceDirectoryPath = GetDirectoryPath $sourcePath
 
 if (!(Test-Path $sourceDirectoryPath -PathType Container)) {
     throw "Source directory '$sourceDirectoryPath' does not exist."

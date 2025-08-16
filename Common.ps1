@@ -27,3 +27,11 @@ Function RunExpressionAndLog(
 Function WriteHighlighted($text) {
     Write-Host $text -ForegroundColor $highlightedColor
 }
+
+Function GetDirectoryPath($path) {
+    if (Test-Path $path -PathType Leaf) {
+        return [IO.Path]::GetDirectoryName($path)
+    } else {
+        return $path
+    }
+}

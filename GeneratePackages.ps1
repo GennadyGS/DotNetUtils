@@ -42,20 +42,20 @@ Function GetAndIncrementVersionFromFile {
 $establishedSourcePath = $sourcePath `
     ? [IO.Path]::GetFullPath($sourcePath) `
     : (Get-Location).Path
-$establishedSourcePath = [RegEx]::Replace($establishedSourcePath, "`\+", "/").
+$establishedSourceDirectoryPath = GetDirectoryPath $establishedSourcePath
+
+$canonicalSourcePath = [RegEx]::Replace($establishedSourcePath, "`\+", "/").
     Replace("\", "/").
     TrimEnd("/").
     ToLower()
-
 $versionsFile ??= "$PSScriptRoot/versions.json"
-
-$version = GetAndIncrementVersionFromFile $versionsFile $establishedSourcePath
+$version = GetAndIncrementVersionFromFile $versionsFile $canonicalSourcePath
 
 $versionWithSuffix = ([System.Convert]::ToBoolean($prerelease)) ? $version + "-alpha" : $version
 
 WriteHighlighted "Generating packages from $establishedSourcePath ..."
-Push-Location $establishedSourcePath
-RunCommandWithLog dotnet pack `
+Push-Location $establishedSourceDirectoryPath
+RunCommandWithLog dotnet pack $establishedSourcePath `
     --configuration $configuration `
     -o ($outputPath ?? $localNugetSourcePath) `
     /p:Version=$versionWithSuffix `
