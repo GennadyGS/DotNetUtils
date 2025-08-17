@@ -172,6 +172,14 @@ Permission is hereby granted, free of charge, to any person obtaining a copy...
 # GitHub Actions CI workflow
 $ci | Out-File -Encoding utf8 "$workflow\ci.yml"
 
+dotnet new sln -n $ProjectName -o $root
+$slnPath = Join-Path $root "$ProjectName.sln"
+dotnet sln $slnPath migrate
+Remove-Item $slnPath
+$slnxPath = Join-Path $root "$ProjectName.slnx"
+dotnet sln $slnxPath add $src
+dotnet sln $slnxPath add $test
+
 # Initialize Git and tag version
 Set-Location $root
 git init
