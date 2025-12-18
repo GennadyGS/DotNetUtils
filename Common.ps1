@@ -19,8 +19,8 @@ Function RunExpressionAndLog(
     WriteHighlighted $name
     $global:LastExitCode = 0
     & $expression
-    if ($LastExitCode -ne 0) {
-        throw "'$name' failed with code $LastExitCode"
+    if ($global:LastExitCode -ne 0) {
+        throw "'$name' failed with code $global:LastExitCode"
     }
 }
 
